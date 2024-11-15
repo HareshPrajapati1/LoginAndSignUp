@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">loginSignUpJetpack</string>
+    <string name="hey_there">Hey there,</string>
+    <string name="create_account">Create an account</string>
+    <string name="welcome_back">Welcome back! Please enter your details.</string>
+    <string name="first_name">First name</string>
+    <string name="name">Name</string>
+    <string name="enter_first_name">Enter your first name</string>
+    <string name="enter_name">Enter your name</string>
+    <string name="last_name">Last name</string>
+    <string name="enter_last_name">Enter your last name</string>
+    <string name="email">Email</string>
+    <string name="enter_email">Enter your email</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="welcome">Welcome please enter your details.</string>
+    <string name="max_character">Must be at least 12 characters and include letters, digits, and special characters.</string>
+    <string name="or_sign_up">Or sign up with</string>
+    <string name="or_login">Or log in up with</string>
+    <string name="have_an_Account">Already have an account?</string>
+    <string name="not_an_Account">Don\'t have an account?</string>
+    <string name="sign_up">Sign up</string>
+    <string name="invalid_name">Invalid name (letters and spaces only, 2–35 characters)</string>
+    <string name="invalid_email">Invalid email address</string>
+    <string name="login_to_account">Log in to your account</string>
+    <string name="login">Log in</string>
+</resources>

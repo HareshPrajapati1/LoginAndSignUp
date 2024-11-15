@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025391629104",
+    "project_id": "loginsignupjetpack-e260d",
+    "storage_bucket": "loginsignupjetpack-e260d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025391629104:android:7f8146ea72e44e11b52ef5",
+        "android_client_info": {
+          "package_name": "com.example.loginsignupjetpack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9ErsyY8opCJozFZcmOSTNkG0BYxoawZs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
