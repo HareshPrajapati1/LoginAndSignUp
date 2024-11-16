@@ -21,7 +21,7 @@
     <string name="have_an_Account">Already have an account?</string>
     <string name="not_an_Account">Don\'t have an account?</string>
     <string name="sign_up">Sign up</string>
-    <string name="invalid_name">Invalid name (letters and spaces only, 2–35 characters)</string>
+    <string name="invalid_name">Invalid name (Minimum 4 characters allowed)</string>
     <string name="invalid_email">Invalid email address</string>
     <string name="login_to_account">Log in to your account</string>
     <string name="login">Log in</string>

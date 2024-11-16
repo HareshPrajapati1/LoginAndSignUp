@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.loginsignupjetpack.R
 import com.example.loginsignupjetpack.components.CustomGradientButton
 import com.example.loginsignupjetpack.components.FloatingActionButtonExample
@@ -55,7 +56,7 @@ fun LoginScreen(navController: NavController) {
         ) {
             val (imgStar, imgLine, textFirst, textSecond,
                 textEmail, textFieldEmail, textPassword, textFieldPassword,
-                textForget, imgSignUp, orAnotherSignUp) = createRefs()
+                textForget, imgSignUp, orAnotherSignUp,textSignUp) = createRefs()
 
             Image(
                 painter = painterResource(R.drawable.ic_start), contentDescription = null,
@@ -116,7 +117,10 @@ fun LoginScreen(navController: NavController) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }, drawable = R.drawable.ic_email,
-                isEmailField = true
+                isEmailField = true,
+                onTextSelected = {
+
+                }
             )
             NormalTextComponent(
                 value = stringResource(id = R.string.password),
@@ -144,21 +148,24 @@ fun LoginScreen(navController: NavController) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }, drawable = R.drawable.icons_password,
-                isPassword = true
+                isPassword = true,
+                onTextSelected = {
+
+                }
             )
             NormalTextComponent(
                 value = stringResource(id = R.string.forgot_password),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.constrainAs(textForget) {
-                    top.linkTo(textFieldPassword.bottom, margin = 16.dp)
+                    top.linkTo(textFieldPassword.bottom, margin = 8.dp)
                     end.linkTo(parent.end)
                 },
             )
             CustomGradientButton(
                 stringResource(id = R.string.login),
                 Modifier.constrainAs(imgSignUp) {
-                    top.linkTo(textFieldPassword.bottom, margin = 64.dp)
+                    top.linkTo(textForget.bottom, margin = 22.dp)
                     start.linkTo(parent.start)
                 }, onClick = {
                     navController.navigate(route = Screen.Main.route)
@@ -173,14 +180,37 @@ fun LoginScreen(navController: NavController) {
                     text = stringResource(id = R.string.or_login),
                     dividerColor = AppMainColor
                 )
-                LoginsOptionsButton(navController)
+                LoginsOptionsButton()
             }
+            val annotatedString = buildAnnotatedString {
+                append(stringResource(id = R.string.not_an_Account))
+                withStyle(style = SpanStyle(color = AppMainColor, fontWeight = FontWeight.Bold)) {
+                    append(" Sign up")
+                }
+            }
+
+            // Display the styled text using BasicText
+            BasicText(
+                text = annotatedString,  // Pass the AnnotatedString directly
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = TextColorCream
+                ),
+                modifier = Modifier.clickable {
+                    navController.navigate(route = Screen.SignUp.route)
+                }.constrainAs(textSignUp){
+                    bottom.linkTo(parent.bottom, margin = 30.dp)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun LoginsOptionsButton(navController: NavController) {
+fun LoginsOptionsButton() {
     Column(
         modifier = Modifier
             .fillMaxSize()  // Ensure the Column takes up the full screen height
@@ -212,31 +242,12 @@ fun LoginsOptionsButton(navController: NavController) {
                 }
             )
         }
-        Spacer(modifier = Modifier.height(155.dp))
-        val annotatedString = buildAnnotatedString {
-            append(stringResource(id = R.string.not_an_Account))
-            withStyle(style = SpanStyle(color = AppMainColor, fontWeight = FontWeight.Bold)) {
-                append(" Sign up")
-            }
-        }
-
-        // Display the styled text using BasicText
-        BasicText(
-            text = annotatedString,  // Pass the AnnotatedString directly
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = TextColorCream
-            ),
-            modifier = Modifier.clickable {
-                navController.navigate(route = Screen.SignUp.route)
-            }
-        )
     }
 }
 
 @Preview
 @Composable
 fun DefaultPreviewSignUpScreen1() {
-//    LoginScreen()
+    val navController = rememberNavController()
+    LoginScreen(navController)
 }

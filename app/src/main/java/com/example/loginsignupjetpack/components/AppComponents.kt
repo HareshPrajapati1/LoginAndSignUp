@@ -1,7 +1,5 @@
 package com.example.loginsignupjetpack.components
 
-import android.R.color
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,17 +7,28 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.*
-import androidx.compose.material3.ButtonDefaults.buttonColors
-import androidx.compose.runtime.*
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,9 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,14 +47,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginsignupjetpack.R
-import com.example.loginsignupjetpack.screens.SignUpScreen
-import com.example.loginsignupjetpack.ui.theme.*
+import com.example.loginsignupjetpack.data.rules.Validator
+import com.example.loginsignupjetpack.ui.theme.AppMainColor
+import com.example.loginsignupjetpack.ui.theme.BackgroundMainColor
+import com.example.loginsignupjetpack.ui.theme.BorderColor
+import com.example.loginsignupjetpack.ui.theme.GrayColor
+import com.example.loginsignupjetpack.ui.theme.TextColorCream
+import com.example.loginsignupjetpack.ui.theme.TextColorError
+import com.example.loginsignupjetpack.ui.theme.TextColorGray
+import com.example.loginsignupjetpack.ui.theme.WhiteColor
 
 
 @Composable
@@ -78,74 +91,46 @@ fun MyTextFieldComponent(
     keyboardOptions: KeyboardOptions,
     modifier: Modifier,
     drawable: Int,
-    isPassword: Boolean = false,  // New parameter to indicate if this is a password field
-    isEmailField: Boolean = false,  // New parameter to determine if this is an email field
-    isNameField: Boolean = false,   // New parameter to determine if this is a name field
+    isPassword: Boolean = false,
+    isEmailField: Boolean = false,
+    isNameField: Boolean = false,
+    onTextSelected: (String) -> Unit,
+    errorMessage: Boolean = false
 ) {
     val textValue = remember { mutableStateOf("") }
     var isFocused by remember { mutableStateOf(false) }
     var isPasswordVisible by remember { mutableStateOf(false) }
-    var isValidEmail by remember { mutableStateOf(true) } // To track email validation state
-    var isValidName by remember { mutableStateOf(true) }  // To track name validation state
-    var isValidPassword by remember { mutableStateOf(true) } // To track password validation state
+    var validationResult by remember { mutableStateOf(true) }
 
-    val maxCharacter = 35
-    val maxPassword = 12
+    // Validation function using Validator class
+    fun validateInput(input: String): Boolean {
+        return when {
+            isEmailField -> Validator.validateEmail(input).status
+            isNameField -> Validator.validateName(input).status
+            isPassword -> Validator.validatePassword(input).status
+            else -> true
+        }
+    }
 
-    // Regex patterns for email, name, and password
-    val emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-    val nameRegex = "^[A-Za-z ]{2,35}$"  // Name should be between 2 and 35 characters
-    val passwordRegex =
-        "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,}$"  // Password validation (at least 8 characters, with letters, digits, and special chars)
-
-    // Change icon color based on focus state
     val iconColor = if (isFocused) AppMainColor else WhiteColor
 
-    // Set visual transformation based on password visibility
     val visualTransformation = if (isPassword && !isPasswordVisible) {
         PasswordVisualTransformation()
     } else {
         VisualTransformation.None
     }
 
-    // Validation logic for email, name, and password
-    if (isEmailField) {
-        isValidEmail = textValue.value.matches(Regex(emailRegex))
-    }
-    if (isNameField) {
-        isValidName = textValue.value.matches(Regex(nameRegex))
-    }
-    if (isPassword) {
-        isValidPassword = textValue.value.matches(Regex(passwordRegex))
-    }
-
-    // Using Column to wrap TextField and error message
     Column(
         modifier = modifier
             .fillMaxWidth()
-        // You can adjust the padding here
     ) {
         OutlinedTextField(
             placeholder = { Text(text = labelValue, color = TextColorGray) },
             value = textValue.value,
             onValueChange = {
-                // Handle validation based on field type
-                if (isEmailField) {
-                    isValidEmail = it.matches(Regex(emailRegex))
-                }
-                if (isNameField) {
-                    isValidName = it.matches(Regex(nameRegex))
-                }
-                if (isPassword) {
-                    isValidPassword = it.matches(Regex(passwordRegex))
-                }
-
-                // Update text value for name, password, or email
-                if (it.length <= maxCharacter && !isPassword) {
-                    textValue.value = it
-                } else if (it.length <= maxPassword) {
-                    textValue.value = it
-                }
+                textValue.value = it
+                validationResult = validateInput(it)
+                onTextSelected(it)
             },
             keyboardOptions = keyboardOptions,
             modifier = Modifier
@@ -194,55 +179,39 @@ fun MyTextFieldComponent(
                             tint = iconColor
                         )
                     }
-                } else {
-                    if (isEmailField && !isValidEmail && textValue.value.isNotEmpty() ||
-                        isNameField && !isValidName && textValue.value.isNotEmpty()
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(18.dp),
-                            painter = painterResource(id = R.drawable.ic_failure),
-                            contentDescription = null,
-                            tint = Color.Unspecified
-                        )
-                    }
+                } else if (!validationResult && textValue.value.isNotEmpty()) {
+                    Icon(
+                        modifier = Modifier.size(18.dp),
+                        painter = painterResource(id = R.drawable.ic_failure),
+                        contentDescription = null,
+                        tint = Color.Unspecified
+                    )
                 }
             },
         )
 
         // Show error messages if the input is invalid
-        if (isEmailField && !isValidEmail && textValue.value.isNotEmpty()) {
-            Text(
-                modifier = Modifier.padding(top = 8.dp),
-                text = stringResource(id = R.string.invalid_email),
-                color = TextColorError,
-                style = TextStyle(fontSize = 12.sp, fontFamily = FontFamily.Serif)
-            )
-        }
-        if (isNameField && !isValidName && textValue.value.isNotEmpty()) {
-            Text(
-                modifier = Modifier.padding(top = 8.dp),
-                text = stringResource(id = R.string.invalid_name),
-                color = TextColorError,
-                style = TextStyle(fontSize = 12.sp, fontFamily = FontFamily.Serif)
-            )
-        }
-        if (isPassword && !isValidPassword && textValue.value.isNotEmpty()) {
+        if (!validationResult && textValue.value.isNotEmpty()) {
             Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .fillMaxWidth(), // This ensures the row takes up the full width
-                verticalAlignment = Alignment.CenterVertically // Aligns both image and text vertically at the center
+                modifier = Modifier.padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically // Aligns icon and text vertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_failure),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(18.dp)
-                        .padding(end = 5.dp) // Space between the image and text
-                )
+                if (isPassword) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_failure),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 5.dp) // Space between the icon and the text
+                    )
+                }
                 Text(
-                    modifier = Modifier.padding(top = 8.dp),
-                    text = stringResource(id = R.string.max_character),
+                    text = when {
+                        isEmailField -> stringResource(id = R.string.invalid_email)
+                        isNameField -> stringResource(id = R.string.invalid_name)
+                        isPassword -> stringResource(id = R.string.max_character)
+                        else -> ""
+                    },
                     color = TextColorError,
                     style = TextStyle(fontSize = 12.sp, fontFamily = FontFamily.Serif)
                 )
@@ -253,11 +222,13 @@ fun MyTextFieldComponent(
 }
 
 
+
 @Composable
 fun CustomGradientButton(
     text: String,
     modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -273,9 +244,14 @@ fun CustomGradientButton(
                 ),
                 shape = RoundedCornerShape(10.dp)
             )
-            .clickable(
-                onClick = onClick
-            ),
+            .let {
+                if (enabled) {
+                    it.clickable(onClick = onClick) // Add clickable only when enabled
+                } else {
+                    it // Do not add clickable modifier when disabled
+                }
+            },
+
 
         contentAlignment = Alignment.Center // Centers the content (Text) inside the Box
     ) {
@@ -359,7 +335,6 @@ fun TextWithDivider(text: String, dividerColor: Color) {
 }
 
 
-
 @Preview
 @Composable
 fun DefaultPreviewSignUpScreen() {
@@ -367,6 +342,9 @@ fun DefaultPreviewSignUpScreen() {
         labelValue = stringResource(id = R.string.enter_your_password),
         KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
         modifier = Modifier, drawable = R.drawable.icons_password,
-        isPassword = true
+        isPassword = true,
+        onTextSelected = {
+
+        }
     )
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,20 +33,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.loginsignupjetpack.R
 import com.example.loginsignupjetpack.components.CustomGradientButton
 import com.example.loginsignupjetpack.components.FloatingActionButtonExample
 import com.example.loginsignupjetpack.components.MyTextFieldComponent
 import com.example.loginsignupjetpack.components.NormalTextComponent
 import com.example.loginsignupjetpack.components.TextWithDivider
+import com.example.loginsignupjetpack.data.LoginViewModel
+import com.example.loginsignupjetpack.data.UIEvent
 import com.example.loginsignupjetpack.navigationGraph.Screen
 import com.example.loginsignupjetpack.ui.theme.AppMainColor
 import com.example.loginsignupjetpack.ui.theme.BackgroundMainColor
 import com.example.loginsignupjetpack.ui.theme.TextColorCream
 
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -61,9 +64,9 @@ fun SignUpScreen(navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .padding(top = 10.dp)
         ) {
-            val (imgStar, imgLine, textFirst, textSecond, textFirstName, textFieldFirstName, textLastname,
-                textFieldLastName, textEmail, textFieldEmail, textPassword, textFieldPassword,
-                textMaxCharacter, imgCorrect, imgSignUp, orAnotherSignUp) = createRefs()
+            val (imgStar, imgLine, textFirst, textSecond, textFirstName, textFieldFirstName,
+                textEmail, textFieldEmail, textPassword, textFieldPassword,
+                textMaxCharacter, imgCorrect, imgSignUp, orAnotherSignUp,textLogin) = createRefs()
 
             Image(
                 painter = painterResource(R.drawable.ic_start), contentDescription = null,
@@ -125,7 +128,10 @@ fun SignUpScreen(navController: NavController) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }, drawable = R.drawable.ic_person,
-                isNameField = true
+                isNameField = true,
+                onTextSelected = {
+                    loginViewModel.onEvent(UIEvent.NameChanged(it))
+                }, errorMessage = loginViewModel.registrationUIState.value.nameError
             )
             /*NormalTextComponent(
                 value = stringResource(id = R.string.last_name),
@@ -166,7 +172,10 @@ fun SignUpScreen(navController: NavController) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }, drawable = R.drawable.ic_email,
-                isEmailField = true
+                isEmailField = true,
+                onTextSelected = {
+                    loginViewModel.onEvent(UIEvent.EmailChanged(it))
+                }, errorMessage = loginViewModel.registrationUIState.value.emailError
             )
             NormalTextComponent(
                 value = stringResource(id = R.string.password),
@@ -185,7 +194,10 @@ fun SignUpScreen(navController: NavController) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }, drawable = R.drawable.icons_password,
-                isPassword = true
+                isPassword = true,
+                onTextSelected = {
+                    loginViewModel.onEvent(UIEvent.PasswordChanged(it))
+                }, errorMessage = loginViewModel.registrationUIState.value.passwordError
             )
 
             /*Image(painter = painterResource(id = R.drawable.ic_failure),
@@ -212,8 +224,10 @@ fun SignUpScreen(navController: NavController) {
                     top.linkTo(textFieldPassword.bottom, margin = 22.dp)
                     start.linkTo(parent.start)
                 }, onClick = {
+                    loginViewModel.onEvent(UIEvent.RegisterButtonClicked)
                     navController.navigate(route = Screen.Main.route)
-                }
+                },
+                enabled = true
             )
 
             Column(modifier = Modifier.constrainAs(orAnotherSignUp) {
@@ -224,14 +238,38 @@ fun SignUpScreen(navController: NavController) {
                     text = stringResource(id = R.string.or_sign_up),
                     dividerColor = AppMainColor
                 )
-                SignUpOptionsButton(navController)
+                SignUpOptionsButton()
             }
+            val annotatedString = buildAnnotatedString {
+                append(stringResource(id = R.string.have_an_Account))
+                // Style only the "Log in" part
+                withStyle(style = SpanStyle(color = AppMainColor, fontWeight = FontWeight.Bold)) {
+                    append(" Log in")
+                }
+            }
+
+            // Display the styled text using BasicText
+            BasicText(
+                text = annotatedString,  // Pass the AnnotatedString directly
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = TextColorCream
+                ),
+                modifier = Modifier.clickable {
+                    navController.navigate(route = Screen.Login.route)
+                }.constrainAs(textLogin){
+                    bottom.linkTo(parent.bottom, margin = 30.dp)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun SignUpOptionsButton(navController: NavController) {
+fun SignUpOptionsButton() {
     Column(
         modifier = Modifier
             .fillMaxSize()  // Ensure the Column takes up the full screen height
@@ -263,31 +301,12 @@ fun SignUpOptionsButton(navController: NavController) {
                 }
             )
         }
-        Spacer(modifier = Modifier.height(100.dp))
-        val annotatedString = buildAnnotatedString {
-            append(stringResource(id = R.string.have_an_Account))
-            // Style only the "Log in" part
-            withStyle(style = SpanStyle(color = AppMainColor, fontWeight = FontWeight.Bold)) {
-                append(" Log in")
-            }
-        }
-
-        // Display the styled text using BasicText
-        BasicText(
-            text = annotatedString,  // Pass the AnnotatedString directly
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = TextColorCream
-            ),
-            modifier = Modifier.clickable {
-                navController.navigate(route = Screen.Login.route)
-            }
-        )
     }
 }
+
 @Preview
 @Composable
 fun DefaultPreviewSignUpScreen() {
-//    SignUpScreen()
+    val navController = rememberNavController()
+    SignUpScreen(navController)
 }
