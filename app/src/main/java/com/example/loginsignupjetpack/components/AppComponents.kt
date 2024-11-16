@@ -102,6 +102,9 @@ fun MyTextFieldComponent(
     var isPasswordVisible by remember { mutableStateOf(false) }
     var validationResult by remember { mutableStateOf(true) }
 
+    val maxCharacter = 35
+    val maxPassword = 12
+
     // Validation function using Validator class
     fun validateInput(input: String): Boolean {
         return when {
@@ -128,9 +131,13 @@ fun MyTextFieldComponent(
             placeholder = { Text(text = labelValue, color = TextColorGray) },
             value = textValue.value,
             onValueChange = {
-                textValue.value = it
                 validationResult = validateInput(it)
                 onTextSelected(it)
+                if (it.length <= maxCharacter && !isPassword) {
+                    textValue.value = it
+                } else if (it.length <= maxPassword) {
+                    textValue.value = it
+                }
             },
             keyboardOptions = keyboardOptions,
             modifier = Modifier
