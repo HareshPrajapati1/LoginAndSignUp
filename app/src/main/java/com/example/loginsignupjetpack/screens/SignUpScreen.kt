@@ -66,7 +66,7 @@ fun SignUpScreen(navController: NavController, loginViewModel: LoginViewModel = 
         ) {
             val (imgStar, imgLine, textFirst, textSecond, textFirstName, textFieldFirstName,
                 textEmail, textFieldEmail, textPassword, textFieldPassword,
-                textMaxCharacter, imgCorrect, imgSignUp, orAnotherSignUp,textLogin) = createRefs()
+                textMaxCharacter, imgCorrect, imgSignUp, orAnotherSignUp, textLogin) = createRefs()
 
             Image(
                 painter = painterResource(R.drawable.ic_start), contentDescription = null,
@@ -227,7 +227,7 @@ fun SignUpScreen(navController: NavController, loginViewModel: LoginViewModel = 
                     loginViewModel.onEvent(UIEvent.RegisterButtonClicked)
                     navController.navigate(route = Screen.Main.route)
                 },
-                enabled = true
+                enabled = loginViewModel.allValidationPassed.value
             )
 
             Column(modifier = Modifier.constrainAs(orAnotherSignUp) {
@@ -256,13 +256,15 @@ fun SignUpScreen(navController: NavController, loginViewModel: LoginViewModel = 
                     fontWeight = FontWeight.Normal,
                     color = TextColorCream
                 ),
-                modifier = Modifier.clickable {
-                    navController.navigate(route = Screen.Login.route)
-                }.constrainAs(textLogin){
-                    bottom.linkTo(parent.bottom, margin = 30.dp)
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-                }
+                modifier = Modifier
+                    .clickable {
+                        navController.navigate(route = Screen.Login.route)
+                    }
+                    .constrainAs(textLogin) {
+                        bottom.linkTo(parent.bottom, margin = 30.dp)
+                        end.linkTo(parent.end)
+                        start.linkTo(parent.start)
+                    }
             )
         }
     }

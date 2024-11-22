@@ -14,7 +14,7 @@ fun NavigationStack() {
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(route = Screen.Main.route) {
-            LoginApp(navController = navController)
+            LoginApp()
         }
         composable(
             route = Screen.Login.route,
